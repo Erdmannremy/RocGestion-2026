@@ -1,0 +1,39 @@
+{
+  "statut_base": "CONFIDENTIEL_REMY_ROC",
+  "derniere_mise_a_jour": "2026-03-02",
+  "clients": [
+    {
+      "id": "CLT-001",
+      "nom": "Logistique Hainaut S.A.",
+      "contact": "Jean Dupont",
+      "email": "contact@log-hainaut.be",
+      "tva": "BE 0123.456.789",
+      "secteur": "Logistique",
+      "adresse": "Boulevard Initialis, 7000 Mons",
+      "total_facture": 1200.00,
+      "statut": "ACTIF"
+    },
+    {
+      "id": "CLT-002",
+      "nom": "BTP Borinage",
+      "contact": "Marc Antoine",
+      "email": "info@btp-borinage.com",
+      "tva": "BE 0987.654.321",
+      "secteur": "Construction",
+      "adresse": "Route de Wallonie, 7011 Ghlin",
+      "total_facture": 3450.00,
+      "statut": "ACTIF"
+    },
+    {
+      "id": "CLT-003",
+      "nom": "Électricité Jurbise & Co",
+      "contact": "Luc Lemaire",
+      "email": "luc@elec-jurbise.be",
+      "tva": "BE 0456.123.789",
+      "secteur": "Artisanat",
+      "adresse": "Rue de la Station, 7050 Jurbise",
+      "total_facture": 0.00,
+      "statut": "PROSPECT"
+    }
+  ]
+}
