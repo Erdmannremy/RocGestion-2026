@@ -3,78 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RocGestion | Dashboard Administrateur</title>
+    <title>RocGestion | Système de Contrôle</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body style="background-color: #030712; color: white; margin: 0; font-family: sans-serif;">
+<body style="background-color: #030712; color: white; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden;">
 
     <div style="display: flex; min-height: 100vh;">
         
         <nav style="width: 260px; background-color: #111827; border-right: 1px solid #1f2937; padding: 2rem; display: flex; flex-direction: column;">
             <div style="margin-bottom: 3rem;">
-                <h1 style="font-size: 1.5rem; display: flex; align-items: center; margin: 0;">
-                    <i class="fas fa-gem" style="color: #3b82f6; margin-right: 10px;"></i> ROC<span style="color: #3b82f6;">GESTION</span>
+                <h1 style="font-size: 1.4rem; display: flex; align-items: center; margin: 0; letter-spacing: 1px;">
+                    <i class="fas fa-gem" style="color: #3b82f6; margin-right: 12px;"></i> ROC<span style="color: #3b82f6;">GESTION</span>
                 </h1>
-                <p style="font-size: 0.7rem; color: #4b5563; font-weight: bold; margin-top: 5px;">STATION : JURBISE_V1</p>
+                <p style="font-size: 0.65rem; color: #4b5563; font-weight: bold; margin-top: 8px; text-transform: uppercase;">Station : Jurbise_Secured_V1</p>
             </div>
 
-            <ul style="list-style: none; padding: 0;">
-                <li style="margin-bottom: 1.5rem;"><a href="javascript:void(0)" onclick="afficherSection('dashboard')" style="text-decoration: none; color: white;"><i class="fas fa-chart-line" style="width: 25px;"></i> Dashboard</a></li>
-                <li style="margin-bottom: 1.5rem;"><a href="#" style="text-decoration: none; color: #9ca3af;"><i class="fas fa-users" style="width: 25px;"></i> Clients</a></li>
-                <li style="margin-bottom: 1.5rem;"><a href="javascript:void(0)" onclick="afficherSection('parametres')" style="text-decoration: none; color: #9ca3af;"><i class="fas fa-cog" style="width: 25px;"></i> Paramètres</a></li>
+            <ul style="list-style: none; padding: 0; flex-grow: 1;">
+                <li style="margin-bottom: 1rem;">
+                    <a href="javascript:void(0)" onclick="afficherSection('dashboard')" style="text-decoration: none; color: white; display: flex; align-items: center; padding: 10px; border-radius: 8px; transition: 0.3s;">
+                        <i class="fas fa-chart-line" style="width: 30px; color: #3b82f6;"></i> Dashboard
+                    </a>
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <a href="javascript:void(0)" onclick="afficherSection('clients')" style="text-decoration: none; color: #9ca3af; display: flex; align-items: center; padding: 10px; border-radius: 8px;">
+                        <i class="fas fa-users" style="width: 30px;"></i> Clients
+                    </a>
+                </li>
+                <li style="margin-bottom: 1rem;">
+                    <a href="javascript:void(0)" onclick="afficherSection('parametres')" style="text-decoration: none; color: #9ca3af; display: flex; align-items: center; padding: 10px; border-radius: 8px;">
+                        <i class="fas fa-cog" style="width: 30px;"></i> Paramètres
+                    </a>
+                </li>
             </ul>
+
+            <div style="padding-top: 2rem; border-top: 1px solid #1f2937;">
+                <a href="#" style="text-decoration: none; color: #ef4444; font-size: 0.75rem; font-weight: bold; display: flex; align-items: center;">
+                    <i class="fas fa-power-off" style="margin-right: 10px;"></i> DÉCONNEXION UNITÉ
+                </a>
+            </div>
         </nav>
 
-        <main style="flex: 1; padding: 3rem;">
-            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
-                <div>
-                    <h2 style="font-size: 1.8rem; margin: 0;">Bienvenue, <span style="color: #3b82f6;">Rémy</span></h2>
-                    <p style="color: #9ca3af; margin: 5px 0 0 0;">Esprit d'analyse activé.</p>
-                </div>
-                <div style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 0.8rem;">
-                    <i class="fas fa-shield-alt"></i> SESSION SÉCURISÉE
-                </div>
-            </header>
-
-            <div style="text-align: right; margin-bottom: 2rem;">
-                <button class="btn-primary" onclick="ouvrirModale()" style="cursor: pointer;">
-                    <i class="fas fa-plus"></i> NOUVEAU CLIENT
-                </button>
-            </div>
-
-            <div class="roc-card">
-                <h3 style="margin-top: 0;">Activités Récentes</h3>
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="text-align: left; color: #9ca3af; font-size: 0.8rem;">
-                            <th style="padding: 1rem; border-bottom: 1px solid #1f2937;">CLIENT</th>
-                            <th style="padding: 1rem; border-bottom: 1px solid #1f2937;">DATE</th>
-                            <th style="padding: 1rem; border-bottom: 1px solid #1f2937;">STATUT</th>
-                        </tr>
-                    </thead>
-                    <tbody id="client-table-body">
-                        </tbody>
-                </table>
-            </div>
+        <main style="flex: 1; padding: 3rem; overflow-y: auto; height: 100vh;">
+            
             <div id="section-dashboard">
-        <header>...</header> <div class="stats">...</div> <div class="roc-card">...</div> </div>
-        <div id="section-parametres" style="display: none;">
-        <h2>Paramètres du Système</h2>
-        <p>Configuration de la station JURBISE_V1</p>
-    </div>
+                <header style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3rem;">
+                    <div>
+                        <h2 style="font-size: 2rem; margin: 0;">Salut, <span style="color: #3b82f6;">Rémy</span></h2>
+                        <p style="color: #9ca3af; margin: 5px 0 0 0;">Analyse des flux en temps réel.</p>
+                    </div>
+                    <div style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 0.75rem; border: 1px solid rgba(16, 185, 129, 0.2);">
+                        <i class="fas fa-check-circle"></i> SYSTÈME OPÉRATIONNEL
+                    </div>
+                </header>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 3rem;">
+                    <div style="background: #111827; padding: 1.5rem; border-radius: 12px; border: 1px solid #1f2937;">
+                        <p style="font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; margin: 0;">Total Chiffre d'Affaires</p>
+                        <p id="total-ca-display" style="font-size: 1.8rem; font-weight: bold; margin: 10px 0 0 0;">12.450 €</p>
+                    </div>
+                    <div style="background: #111827; padding: 1.5rem; border-radius: 12px; border: 1px solid #1f2937;">
+                        <p style="font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; margin: 0;">Score Intégrité</p>
+                        <p style="font-size: 1.8rem; font-weight: bold; margin: 10px 0 0 0; color: #10b981;">100%</p>
+                    </div>
+                    <div style="background: #111827; padding: 1.5rem; border-radius: 12px; border: 1px solid #1f2937;">
+                        <p style="font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; margin: 0;">Statut</p>
+                        <p style="font-size: 1.2rem; font-weight: bold; margin: 10px 0 0 0; color: #fbbf24;">SILENCE RADIO ACTIVÉ</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="margin: 0;">Flux Récent <span style="font-size: 0.8rem; color: #4b5563; font-weight: normal;">(Derniers ajouts)</span></h3>
+                    <button onclick="ouvrirModale()" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        <i class="fas fa-plus"></i> NOUVEAU CLIENT
+                    </button>
+                </div>
+
+                <div style="background: #111827; border-radius: 12px; border: 1px solid #1f2937; overflow: hidden;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: #1f2937;">
+                            <tr style="text-align: left; color: #9ca3af; font-size: 0.75rem;">
+                                <th style="padding: 1rem;">PARTENAIRE</th>
+                                <th style="padding: 1rem;">DATE</th>
+                                <th style="padding: 1rem; text-align: right;">MONTANT TTC</th>
+                            </tr>
+                        </thead>
+                        <tbody id="client-table-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="section-clients" style="display: none;">
+                <h2 style="font-size: 2rem; margin-bottom: 2rem;">Annuaire des <span style="color: #3b82f6;">Partenaires</span></h2>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <div style="position: relative; width: 350px;">
+                        <i class="fas fa-search" style="position: absolute; left: 15px; top: 12px; color: #4b5563;"></i>
+                        <input type="text" placeholder="Rechercher une entreprise..." style="width: 100%; padding: 12px 12px 12px 45px; border-radius: 25px; background: #111827; border: 1px solid #1f2937; color: white; outline: none;">
+                    </div>
+                    <div style="color: #9ca3af; font-size: 0.85rem;">
+                        Base de données : <span id="total-partenaires" style="color: #3b82f6; font-weight: bold;">0</span> enregistrements
+                    </div>
+                </div>
+
+                <div style="background: #111827; border-radius: 12px; border: 1px solid #1f2937; overflow: hidden;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="text-align: left; color: #4b5563; font-size: 0.75rem; border-bottom: 1px solid #1f2937;">
+                                <th style="padding: 1.2rem;">NOM COMPLET</th>
+                                <th style="padding: 1.2rem;">SECTEUR D'ACTIVITÉ</th>
+                                <th style="padding: 1.2rem; text-align: right;">MONTANT HT</th>
+                            </tr>
+                        </thead>
+                        <tbody id="annuaire-table-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="section-parametres" style="display: none;">
+                <h2 style="font-size: 2rem; margin-bottom: 1rem;">Configuration</h2>
+                <div style="background: #111827; padding: 2rem; border-radius: 12px; border: 1px solid #1f2937;">
+                    <p style="color: #9ca3af;">Identifiant Station : <strong>JURBISE-ADM-01</strong></p>
+                    <p style="color: #9ca3af;">Mode : <span style="color: #10b981;">Protection Active</span></p>
+                </div>
+            </div>
+
         </main>
     </div>
 
-    <div id="modal-client" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center;">
-        <div style="background: #111827; border: 1px solid #3b82f6; padding: 2.5rem; border-radius: 1.5rem; width: 400px;">
-            <h3 style="margin-top: 0; color: white;">Ajouter un partenaire</h3>
-            <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
-                <input type="text" id="new-client-name" placeholder="Nom de l'entreprise" style="padding: 12px; border-radius: 8px; background: #030712; border: 1px solid #374151; color: white;">
-                <input type="text" id="new-client-sector" placeholder="Secteur">
-                <input type="number" id="new-client-amount" placeholder="Prix">
-                <button class="btn-primary" onclick="validerAjoutClient()" style="padding: 12px; cursor: pointer;">ENREGISTRER</button>
-                <button onclick="fermerModale()" style="background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 0.8rem;">ANNULER</button>
+    <div id="modal-client" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: #111827; border: 1px solid #3b82f6; padding: 2.5rem; border-radius: 1.5rem; width: 420px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+            <h3 style="margin: 0 0 1.5rem 0; color: white; text-transform: uppercase; letter-spacing: 1px;">Nouveau Dossier</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+                <div>
+                    <label style="color: #4b5563; font-size: 0.7rem; font-weight: bold; text-transform: uppercase;">Nom Entreprise</label>
+                    <input type="text" id="new-client-name" placeholder="ex: Logistique Mons" style="width: 100%; padding: 12px; border-radius: 8px; background: #030712; border: 1px solid #374151; color: white; margin-top: 5px; outline: none;">
+                </div>
+
+                <div>
+                    <label style="color: #4b5563; font-size: 0.7rem; font-weight: bold; text-transform: uppercase;">Secteur</label>
+                    <input type="text" id="new-client-sector" placeholder="ex: Transport / BTP" style="width: 100%; padding: 12px; border-radius: 8px; background: #030712; border: 1px solid #374151; color: white; margin-top: 5px; outline: none;">
+                </div>
+
+                <div>
+                    <label style="color: #4b5563; font-size: 0.7rem; font-weight: bold; text-transform: uppercase;">Montant HT (€)</label>
+                    <input type="number" id="new-client-amount" placeholder="0.00" style="width: 100%; padding: 12px; border-radius: 8px; background: #030712; border: 1px solid #374151; color: white; margin-top: 5px; outline: none;">
+                </div>
+
+                <button onclick="validerAjoutClient()" style="padding: 15px; cursor: pointer; font-weight: bold; background: #3b82f6; border: none; color: white; border-radius: 8px; margin-top: 10px; transition: 0.3s;">
+                    <i class="fas fa-save"></i> FINALISER L'ENREGISTREMENT
+                </button>
+                
+                <button onclick="fermerModale()" style="background: none; border: none; color: #4b5563; cursor: pointer; font-size: 0.8rem; font-weight: bold;">ABANDONNER</button>
             </div>
         </div>
     </div>

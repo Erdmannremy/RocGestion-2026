@@ -1,30 +1,43 @@
-// 1. CALCULATEUR ROC
+/* ==========================================================
+   ROCGESTION V1.0 - LE CERVEAU DU SYSTÈME (JURBISE_V1)
+   ========================================================== */
+
+// 1. CALCULATEUR DE TAXES (Normes Belges 21%)
 const RocCalculateur = {
     tauxTVA: 0.21,
     calculerTTC: function(montantHT) {
         const tva = montantHT * this.tauxTVA;
         const ttc = montantHT + tva;
         return {
+            ht: montantHT.toFixed(2),
+            tva: tva.toFixed(2),
             ttc: ttc.toFixed(2)
         };
     }
 };
-// --- SYSTÈME DE NAVIGATION ---
 
+// 2. SYSTÈME DE NAVIGATION (Changement de vue)
 function afficherSection(nomSection) {
-    // 1. On cache toutes les sections possibles
-    document.getElementById('section-dashboard').style.display = 'none';
-    document.getElementById('section-parametres').style.display = 'none';
+    // Liste des sections du HTML
+    const sections = ['section-dashboard', 'section-clients', 'section-parametres'];
+    
+    // On cache tout
+    sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
 
-    // 2. On affiche uniquement celle demandée
-    if(nomSection === 'dashboard') {
-        document.getElementById('section-dashboard').style.display = 'block';
-    } else if(nomSection === 'parametres') {
-        document.getElementById('section-parametres').style.display = 'block';
+    // On affiche la section demandée
+    const sectionCible = document.getElementById('section-' + nomSection);
+    if (sectionCible) {
+        sectionCible.style.display = 'block';
     }
+
+    // Feedback console pour ton esprit d'analyse
+    console.log("Navigation active : " + nomSection.toUpperCase());
 }
 
-// 2. FONCTIONS DE LA FENÊTRE (MODALE)
+// 3. GESTION DE LA MODALE
 function ouvrirModale() {
     document.getElementById('modal-client').style.display = 'flex';
 }
@@ -33,51 +46,71 @@ function fermerModale() {
     document.getElementById('modal-client').style.display = 'none';
 }
 
-// 3. FONCTION D'ENREGISTREMENT (Celle qui bloquait)
+// 4. MODIFICATION DE L'ENREGISTREUR POUR AJOUTER UN ID UNIQUE
 function validerAjoutClient() {
-    // Récupération des données
-    const champNom = document.getElementById('new-client-name');
-    const champSecteur = document.getElementById('new-client-sector');
-    const champMontant = document.getElementById('new-client-amount');
+    const nom = document.getElementById('new-client-name').value;
+    const secteur = document.getElementById('new-client-sector').value;
+    const montantHT = parseFloat(document.getElementById('new-client-amount').value) || 0;
 
-    // Vérification si les champs existent bien
-    if (!champNom || !champSecteur || !champMontant) {
-        console.error("Erreur : Un des champs HTML est introuvable.");
-        return;
-    }
+    if (nom.trim() === "") return;
 
-    const nom = champNom.value;
-    const secteur = champSecteur.value;
-    const montantHT = parseFloat(champMontant.value) || 0;
-
-    // Sécurité
-    if (nom.trim() === "") {
-        alert("Rémy, le nom est obligatoire.");
-        return;
-    }
-
-    // Calcul
-    const resultat = RocCalculateur.calculerTTC(montantHT);
-
-    // Ajout au tableau
-    const tableBody = document.getElementById('client-table-body');
-    const row = document.createElement('tr');
+    const calcul = RocCalculateur.calculerTTC(montantHT);
+    const dateJour = new Date().toLocaleDateString('fr-FR');
     
-    row.innerHTML = `
-        <td style="padding: 1rem; border-bottom: 1px solid #1f2937; font-weight: bold;">${nom}</td>
-        <td style="padding: 1rem; border-bottom: 1px solid #1f2937;">${new Date().toLocaleDateString('fr-FR')}</td>
-        <td style="padding: 1rem; border-bottom: 1px solid #1f2937;">
-            <span style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: bold;">
-                PROSPECT (${resultat.ttc}€)
-            </span>
+    // 5. Génération d'un ID unique basé sur le temps (timestamp)
+    const clientId = "client-" + Date.now();
+
+    // 6. --- A. DASHBOARD ---
+    const tableDash = document.getElementById('client-table-body');
+    const rowDash = document.createElement('tr');
+    rowDash.id = "dash-" + clientId; // ID pour le dashboard
+    rowDash.innerHTML = `
+        <td style="padding: 1rem;"><i class="fas fa-bolt" style="color: #fbbf24; margin-right: 10px;"></i> ${nom}</td>
+        <td style="padding: 1rem; color: #9ca3af;">${dateJour}</td>
+        <td style="padding: 1rem; text-align: right; font-weight: bold; color: #10b981;">${calcul.ttc} €</td>
+    `;
+    tableDash.prepend(rowDash);
+
+    // 7. --- B. ANNUAIRE + BOUTON SUPPRIMER ---
+    const tableAnnu = document.getElementById('annuaire-table-body');
+    const rowAnnu = document.createElement('tr');
+    rowAnnu.id = "annu-" + clientId; // ID pour l'annuaire
+    rowAnnu.innerHTML = `
+        <td style="padding: 1.2rem; font-weight: bold; color: #3b82f6;">${nom.toUpperCase()}</td>
+        <td style="padding: 1.2rem;"><span style="background: #1f2937; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; color: #9ca3af;">${secteur}</span></td>
+        <td style="padding: 1.2rem; text-align: right;">
+            <span style="margin-right: 15px;">${calcul.ht} € HT</span>
+            <button onclick="supprimerClient('${clientId}')" style="background: none; border: none; color: #ef4444; cursor: pointer;">
+                <i class="fas fa-trash-alt"></i>
+            </button>
         </td>
     `;
-    
-    tableBody.prepend(row);
+    tableAnnu.prepend(rowAnnu);
 
-    // Fermeture et nettoyage
+    // --- C. COMPTEUR ---
+    document.getElementById('total-partenaires').innerText = tableAnnu.rows.length;
+
     fermerModale();
-    champNom.value = "";
-    champSecteur.value = "";
-    champMontant.value = "";
+    document.getElementById('new-client-name').value = "";
+    document.getElementById('new-client-sector').value = "";
+    document.getElementById('new-client-amount').value = "";
+}
+
+// 9. --- NOUVELLE FONCTION : SUPPRESSION SYNCHRONISÉE ---
+function supprimerClient(id) {
+    if (confirm("Rémy, confirmer la suppression définitive de ce dossier ?")) {
+        // Suppression sur le Dashboard
+        const ligneDash = document.getElementById("dash-" + id);
+        if (ligneDash) ligneDash.remove();
+
+        // Suppression sur l'Annuaire
+        const ligneAnnu = document.getElementById("annu-" + id);
+        if (ligneAnnu) ligneAnnu.remove();
+
+        // Mise à jour du compteur
+        const tableAnnu = document.getElementById('annuaire-table-body');
+        document.getElementById('total-partenaires').innerText = tableAnnu.rows.length;
+        
+        console.log("Dossier " + id + " éliminé du système.");
+    }
 }
