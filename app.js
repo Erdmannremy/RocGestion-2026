@@ -10,21 +10,31 @@ function mettreAJourChiffreAffaires() {
     const tableAnnu = document.getElementById('annuaire-table-body');
     let totalHT = 0;
 
-    // On scanne l'annuaire pour obtenir le montant réel HT
+    // Récupération du taux de taxe pour les charges depuis les paramètres
+    const tauxTaxeParam = parseFloat(document.getElementById('param-taxe').value) / 100 || 0.45;
+
     for (let i = 0; i < tableAnnu.rows.length; i++) {
-        const montantTexte = tableAnnu.rows[i].cells[2].innerText;
-        const montantNum = parseFloat(montantTexte) || 0;
+        const ligne = tableAnnu.rows[i];
+        
+        // --- LA CORRECTION EST ICI ---
+        // Au lieu de lire le texte de la cellule index 2 qui contient "(21%) 1000 €",
+        // on va chercher une span spécifique ou on nettoie le texte plus intelligemment.
+        
+        const celluleMontant = ligne.cells[2];
+        // On récupère tout le texte et on ne garde que ce qui ressemble à un nombre (chiffres et point)
+        const texteNettoye = celluleMontant.innerText.split('€')[0].replace(/[^\d.]/g, '');
+        const montantNum = parseFloat(texteNettoye) || 0;
+        
         totalHT += montantNum;
     }
 
-    // --- CALCUL DES TAXES (Estimation 45% : Cotisations + IPP) ---
-    const tauxChargeGlobal = 0.45; 
-    const montantCharges = totalHT * tauxChargeGlobal;
+    // Calcul des charges et du net
+    const montantCharges = totalHT * tauxTaxeParam;
     const montantNet = totalHT - montantCharges;
 
-    // --- MISE À JOUR DE L'INTERFACE ---
     const format = (num) => num.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
 
+    // Mise à jour de l'affichage
     const elCA = document.getElementById('total-ca-display');
     const elCharges = document.getElementById('total-charges-display');
     const elNet = document.getElementById('total-net-display');
@@ -32,8 +42,10 @@ function mettreAJourChiffreAffaires() {
     if (elCA) elCA.innerText = format(totalHT);
     if (elCharges) elCharges.innerText = "-" + format(montantCharges);
     if (elNet) elNet.innerText = format(montantNet);
-
-    console.log(`Sync Fiscale : Brut ${totalHT}€ | Net ${montantNet}€`);
+    
+    // Mise à jour de la légende sous les charges
+    const legende = document.querySelector('#total-charges-display + p');
+    if (legende) legende.innerText = `Cotisations + Impôts (${(tauxTaxeParam*100).toFixed(0)}%)`;
 }
 
 // 2. NAVIGATION
@@ -118,15 +130,16 @@ function validerAjoutClient() {
     const ht = montantHT.toFixed(2);
     const date = new Date().toLocaleDateString('fr-FR');
 
-    const contenuHTML_Annu = (id) => `
-        <td style="padding:1.2rem;font-weight:bold;color:#3b82f6;">${nom.toUpperCase()}</td>
-        <td style="padding:1.2rem;"><span style="background:#1f2937;padding:4px 10px;border-radius:4px;font-size:0.75rem;color:#9ca3af;">${secteur}</span></td>
-        <td style="padding:1.2rem;text-align:right;">
-            <span style="font-size:0.7rem; color:#4b5563; margin-right:5px;">(${tauxTVA}%)</span>
-            <span style="margin-right:15px;">${ht} € HT</span>
-            <button onclick="ouvrirModale('${id}')" style="background:none;border:none;color:#3b82f6;cursor:pointer;margin-right:10px;"><i class="fas fa-edit"></i></button>
-            <button onclick="supprimerClient('${id}')" style="background:none;border:none;color:#ef4444;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
-        </td>`;
+    // Dans ta fonction validerAjoutClient, remplace la variable contenuHTML_Annu :
+const contenuHTML_Annu = (id) => `
+    <td style="padding:1.2rem;font-weight:bold;color:#3b82f6;">${nom.toUpperCase()}</td>
+    <td style="padding:1.2rem;"><span style="background:#1f2937;padding:4px 10px;border-radius:4px;font-size:0.75rem;color:#9ca3af;">${secteur}</span></td>
+    <td style="padding:1.2rem;text-align:right;">
+        <span style="font-size:0.7rem; color:#4b5563; margin-right:5px;">(${tauxTVA}%)</span>
+        <span class="classe-montant-ht" style="margin-right:15px;">${ht}</span> € HT
+        <button onclick="ouvrirModale('${id}')" style="background:none;border:none;color:#3b82f6;cursor:pointer;margin-right:10px;"><i class="fas fa-edit"></i></button>
+        <button onclick="supprimerClient('${id}')" style="background:none;border:none;color:#ef4444;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
+    </td>`;
 
     const contenuHTML_Dash = `
         <td style="padding:1rem;"><i class="fas fa-bolt" style="color:#fbbf24;margin-right:10px;"></i> ${nom}</td>
@@ -172,33 +185,32 @@ function sauvegarderParametres() {
 }
 
 // --- MODIFICATION DE LA FONCTION DE CALCUL POUR UTILISER LES PARAMÈTRES ---
-// Remplace ton ancienne fonction mettreAJourChiffreAffaires par celle-ci :
 function mettreAJourChiffreAffaires() {
-    const tableAnnu = document.getElementById('annuaire-table-body');
+    // On va chercher toutes nos petites boîtes de montants
+    const tousLesMontants = document.querySelectorAll('.classe-montant-ht');
     let totalHT = 0;
 
-    // Récupération dynamique du taux de taxe depuis les paramètres
+    tousLesMontants.forEach(span => {
+        // On récupère la valeur, on remplace la virgule par un point si besoin
+        const valeur = parseFloat(span.innerText.replace(',', '.')) || 0;
+        totalHT += valeur;
+    });
+
+    // Récupération du taux de taxe pour les charges (Dashboard)
     const tauxTaxeParam = parseFloat(document.getElementById('param-taxe').value) / 100 || 0.45;
-
-    for (let i = 0; i < tableAnnu.rows.length; i++) {
-        const montantTexte = tableAnnu.rows[i].cells[2].innerText;
-        const montantNum = parseFloat(montantTexte) || 0;
-        totalHT += montantNum;
-    }
-
     const montantCharges = totalHT * tauxTaxeParam;
     const montantNet = totalHT - montantCharges;
 
     const format = (num) => num.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
 
+    // Mise à jour de l'affichage
     document.getElementById('total-ca-display').innerText = format(totalHT);
     document.getElementById('total-charges-display').innerText = "-" + format(montantCharges);
     document.getElementById('total-net-display').innerText = format(montantNet);
     
-    // Mise à jour du texte de légende sous la carte charges
-    document.querySelector('#total-charges-display + p').innerText = `Cotisations + Impôts (${(tauxTaxeParam*100).toFixed(0)}%)`;
+    const legende = document.querySelector('#total-charges-display + p');
+    if (legende) legende.innerText = `Cotisations + Impôts (${(tauxTaxeParam*100).toFixed(0)}%)`;
 }
-
 // --- POINT 3 : EXPORT CSV AMÉLIORÉ (AVEC DÉTAILS TVA) ---
 function exportCSV() {
     // Récupération des taux actuels définis dans tes paramètres
