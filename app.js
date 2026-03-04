@@ -125,46 +125,53 @@ function validerAjoutClient() {
 
     if (nom.trim() === "") return;
 
-    const calculTVA = montantHT * (tauxTVA / 100);
-    const ttc = (montantHT + calculTVA).toFixed(2);
+    const tvaValeur = montantHT * (tauxTVA / 100);
+    const ttc = (montantHT + tvaValeur).toFixed(2);
     const ht = montantHT.toFixed(2);
     const date = new Date().toLocaleDateString('fr-FR');
 
-    // Dans ta fonction validerAjoutClient, remplace la variable contenuHTML_Annu :
-const contenuHTML_Annu = (id) => `
-    <td style="padding:1.2rem;font-weight:bold;color:#3b82f6;">${nom.toUpperCase()}</td>
-    <td style="padding:1.2rem;"><span style="background:#1f2937;padding:4px 10px;border-radius:4px;font-size:0.75rem;color:#9ca3af;">${secteur}</span></td>
-    <td style="padding:1.2rem;text-align:right;">
-        <span style="font-size:0.7rem; color:#4b5563; margin-right:5px;">(${tauxTVA}%)</span>
-        <span class="classe-montant-ht" style="margin-right:15px;">${ht}</span> € HT
-        <button onclick="ouvrirModale('${id}')" style="background:none;border:none;color:#3b82f6;cursor:pointer;margin-right:10px;"><i class="fas fa-edit"></i></button>
-        <button onclick="supprimerClient('${id}')" style="background:none;border:none;color:#ef4444;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
-    </td>`;
+    // --- CONSTRUCTION HTML ANNUAIRE (6 Colonnes) ---
+    const contenuHTML_Annu = (id) => `
+        <td style="padding:1.2rem;font-weight:bold;color:#3b82f6;">${nom.toUpperCase()}</td>
+        <td style="padding:1.2rem;"><span style="background:#1f2937;padding:4px 10px;border-radius:4px;font-size:0.75rem;color:#9ca3af;">${secteur}</span></td>
+        <td style="padding:1.2rem;text-align:right;"><span class="classe-montant-ht">${ht}</span> €</td>
+        <td style="padding:1.2rem;text-align:right;color:#9ca3af;">${tauxTVA} %</td>
+        <td style="padding:1.2rem;text-align:right;font-weight:bold;color:white;">${ttc} €</td>
+        <td style="padding:1.2rem;text-align:center;">
+            <button onclick="ouvrirModale('${id}')" style="background:none;border:none;color:#3b82f6;cursor:pointer;"><i class="fas fa-edit"></i></button>
+            <button onclick="supprimerClient('${id}')" style="background:none;border:none;color:#ef4444;cursor:pointer;margin-left:10px;"><i class="fas fa-trash-alt"></i></button>
+        </td>`;
 
+    // --- CONSTRUCTION HTML DASHBOARD (5 Colonnes) ---
     const contenuHTML_Dash = `
         <td style="padding:1rem;"><i class="fas fa-bolt" style="color:#fbbf24;margin-right:10px;"></i> ${nom}</td>
         <td style="padding:1rem;color:#9ca3af;">${date}</td>
+        <td style="padding:1rem;text-align:right;">${ht} €</td>
+        <td style="padding:1rem;text-align:right;color:#9ca3af;">${tauxTVA}%</td>
         <td style="padding:1rem;text-align:right;font-weight:bold;color:#10b981;">${ttc} €</td>`;
 
+    // --- LOGIQUE D'INSERTION ---
     if (clientEnCoursDeModif) {
         const id = clientEnCoursDeModif;
         const rAnnu = document.getElementById("annu-" + id);
         const rDash = document.getElementById("dash-" + id);
         if(rAnnu) {
             rAnnu.innerHTML = contenuHTML_Annu(id);
-            rAnnu.setAttribute('data-tva', tauxTVA); // On stocke la TVA pour la future modif
+            rAnnu.setAttribute('data-tva', tauxTVA);
         }
         if(rDash) rDash.innerHTML = contenuHTML_Dash;
     } else {
         const id = "ID" + Date.now();
         const rowAnnu = document.createElement('tr');
         rowAnnu.id = "annu-" + id;
-        rowAnnu.setAttribute('data-tva', tauxTVA); // Stockage important
+        rowAnnu.setAttribute('data-tva', tauxTVA);
+        rowAnnu.style.borderBottom = "1px solid #1f2937";
         rowAnnu.innerHTML = contenuHTML_Annu(id);
         document.getElementById('annuaire-table-body').prepend(rowAnnu);
 
         const rowDash = document.createElement('tr');
         rowDash.id = "dash-" + id;
+        rowDash.style.borderBottom = "1px solid #1f2937";
         rowDash.innerHTML = contenuHTML_Dash;
         document.getElementById('client-table-body').prepend(rowDash);
     }

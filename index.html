@@ -65,7 +65,7 @@
                     
                     <div style="background: #111827; padding: 1.5rem; border-radius: 12px; border: 1px solid #1f2937; position: relative; overflow: hidden;">
                         <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #ef4444;"></div>
-                        <p style="font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; margin: 0; letter-spacing: 1px;">Provisions (Impôts)</p>
+                        <p style="font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; margin: 0; letter-spacing: 1px;">Provisions (Impôts+Cotisations)</p>
                         <p id="total-charges-display" style="font-size: 1.8rem; font-weight: bold; margin: 10px 0 0 0; color: #ef4444;">0.00 €</p>
                         <p style="font-size: 0.65rem; color: #4b5563; margin-top: 5px;">Cotisations + Impôts IPP</p>
                     </div>
@@ -87,13 +87,15 @@
 
                 <div style="background: #111827; border-radius: 12px; border: 1px solid #1f2937; overflow: hidden;">
                     <table style="width: 100%; border-collapse: collapse;">
-                        <thead style="background: #1f2937;">
-                            <tr style="text-align: left; color: #9ca3af; font-size: 0.75rem;">
-                                <th style="padding: 1rem;">CLIENT</th>
-                                <th style="padding: 1rem;">DATE</th>
-                                <th style="padding: 1rem; text-align: right;">MONTANT TTC</th>
-                            </tr>
-                        </thead>
+                <thead style="background: #1f2937;">
+                     <tr style="text-align: left; color: #9ca3af; font-size: 0.75rem;">
+                     <th style="padding: 1rem;">CLIENT</th>
+                     <th style="padding: 1rem;">DATE</th>
+                     <th style="padding: 1rem; text-align: right;">MONTANT HT</th>
+                     <th style="padding: 1rem; text-align: right;">TVA (%)</th>
+                     <th style="padding: 1rem; text-align: right;">TOTAL TVAC</th>
+                       </tr>
+                </thead>
                         <tbody id="client-table-body"></tbody>
                     </table>
                 </div>
@@ -108,13 +110,16 @@
                 </div>
                 <div style="background: #111827; border-radius: 12px; border: 1px solid #1f2937; overflow: hidden;">
                     <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="text-align: left; color: #4b5563; font-size: 0.75rem; border-bottom: 1px solid #1f2937;">
-                                <th style="padding: 1.2rem;">NOM COMPLET</th>
-                                <th style="padding: 1.2rem;">SECTEUR</th>
-                                <th style="padding: 1.2rem; text-align: right;">MONTANT HT</th>
-                            </tr>
-                        </thead>
+                    <thead>
+    <tr style="text-align: left; color: #4b5563; font-size: 0.75rem; border-bottom: 1px solid #1f2937;">
+        <th style="padding: 1.2rem;">NOM COMPLET</th>
+        <th style="padding: 1.2rem;">SECTEUR</th>
+        <th style="padding: 1.2rem; text-align: right;">HT</th>
+        <th style="padding: 1.2rem; text-align: right;">TVA</th>
+        <th style="padding: 1.2rem; text-align: right;">TVAC</th>
+        <th style="padding: 1.2rem; text-align: center;">ACTIONS</th>
+    </tr>
+</thead>
                         <tbody id="annuaire-table-body"></tbody>
                     </table>
                 </div>
