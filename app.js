@@ -178,6 +178,7 @@ function validerAjoutClient() {
     
     mettreAJourChiffreAffaires();
     document.getElementById('total-partenaires').innerText = document.getElementById('annuaire-table-body').rows.length;
+    (id, nom, ttc);
     fermerModale();
 }
 // --- FONCTION DU POINT 1 & 2 : SAUVEGARDE RÉGLAGES ---
