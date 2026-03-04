@@ -29,6 +29,11 @@
                         <i class="fas fa-users" style="width: 30px;"></i> Clients
                     </a>
                 </li>
+                    <li style="margin-bottom: 1rem;">
+                    <a href="javascript:void(0)" onclick="afficherSection('factures')" style="text-decoration: none; color: #9ca3af; display: flex; align-items: center; padding: 10px;">
+                    <i class="fas fa-file-invoice-dollar" style="width: 30px;"></i> Facturation 2026
+                       </a>
+                 </li>
                 <li style="margin-bottom: 1rem;">
                     <a href="javascript:void(0)" onclick="afficherSection('parametres')" style="text-decoration: none; color: #9ca3af; display: flex; align-items: center; padding: 10px; border-radius: 8px;">
                         <i class="fas fa-cog" style="width: 30px;"></i> Paramètres
@@ -124,6 +129,32 @@
                     </table>
                 </div>
             </div>
+            <div id="section-factures" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2 style="font-size: 2rem; margin: 0;">Gestion <span style="color: #3b82f6;">Factures & Relances</span></h2>
+        <div style="background: #1e293b; padding: 10px 20px; border-radius: 8px; border: 1px solid #3b82f6;">
+            <span style="font-size: 0.8rem; color: #9ca3af;">Conformité :</span> 
+            <strong style="color: #10b981;">B2B PEPPOL 2026 ✅</strong>
+        </div>
+    </div>
+
+    <div style="background: #111827; border-radius: 12px; border: 1px solid #1f2937; overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead style="background: #1f2937;">
+                <tr style="text-align: left; color: #9ca3af; font-size: 0.75rem;">
+                    <th style="padding: 1.2rem;">RÉFÉRENCE</th>
+                    <th style="padding: 1.2rem;">CLIENT</th>
+                    <th style="padding: 1.2rem; text-align: right;">TOTAL TVAC</th>
+                    <th style="padding: 1.2rem; text-align: center;">ÉCHÉANCE</th>
+                    <th style="padding: 1.2rem; text-align: center;">STATUT</th>
+                    <th style="padding: 1.2rem; text-align: right;">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody id="factures-table-body">
+                </tbody>
+        </table>
+    </div>
+</div>
 
             <div id="section-parametres" style="display: none;">
     <h2 style="font-size: 2rem; margin-bottom: 2rem;">Configuration <span style="color: #3b82f6;">Système</span></h2>

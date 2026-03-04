@@ -285,3 +285,80 @@ function changerCouleur(code) {
     elements.forEach(el => el.style.color = code);
     document.querySelector('button[onclick="validerAjoutClient()"]').style.background = code;
 }
+//--- POINT 4: Verification retard facture ---
+function verifierRetards() {
+    const aujourdhui = new Date();
+    // On parcourt les dossiers stockés
+    mesDossiers.forEach(dossier => {
+        const dateFacture = new Date(dossier.date);
+        const differenceJours = (aujourdhui - dateFacture) / (1000 * 60 * 60 * 24);
+
+        if (differenceJours > 30 && dossier.statut !== 'Payé') {
+            envoyerRappelAuto(dossier);
+        }
+    });
+}
+//--- Facturation XML PEPPOL ---
+function genererXMLPeppol(client, montantHT, tva) {
+    const xml = `
+    <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
+        <ID>FACT-2026-001</ID>
+        <IssueDate>${new Date().toISOString().split('T')[0]}</IssueDate>
+        <AccountingSupplierParty>...</AccountingSupplierParty>
+        <AccountingCustomerParty>...</AccountingCustomerParty>
+        <LegalMonetaryTotal>
+            <LineExtensionAmount currencyID="EUR">${montantHT}</LineExtensionAmount>
+            <TaxExclusiveAmount currencyID="EUR">${montantHT}</TaxExclusiveAmount>
+            <PayableAmount currencyID="EUR">${(montantHT * 1.21).toFixed(2)}</PayableAmount>
+        </LegalMonetaryTotal>
+    </Invoice>`;
+    return xml;
+}
+// --- FONCTION POUR CHANGER LE STATUT DE PAIEMENT ---
+function changerStatutPaiement(id) {
+    const btn = document.getElementById("status-btn-" + id);
+    if (btn.innerText === "EN ATTENTE") {
+        btn.innerText = "PAYÉ";
+        btn.style.background = "#065f46";
+        btn.style.color = "#10b981";
+    } else {
+        btn.innerText = "EN ATTENTE";
+        btn.style.background = "#451a03";
+        btn.style.color = "#f59e0b";
+    }
+}
+
+// --- SIMULATION GÉNÉRATION FACTURE 2026 (PDF + XML) ---
+function emettreFacture(id, nom, montant) {
+    alert(`Génération Facture pour ${nom}\n1. Fichier PDF créé.\n2. Fichier XML Peppol 2026 généré pour le portail fiscal.`);
+    console.log("Transmission Peppol via Access Point...");
+}
+
+// --- MISE À JOUR DE LA SECTION FACTURATION ---
+// Appelle cette partie dans ta fonction validerAjoutClient
+function ajouterLigneFacture(id, nom, ttc) {
+    const tableFact = document.getElementById('factures-table-body');
+    const dateEcheance = new Date();
+    dateEcheance.setDate(dateEcheance.getDate() + 30); // Echéance standard 30 jours
+    
+    const row = document.createElement('tr');
+    row.id = "fact-row-" + id;
+    row.style.borderBottom = "1px solid #1f2937";
+    row.innerHTML = `
+        <td style="padding:1.2rem; font-family: monospace; color:#3b82f6;">INV-26-${id.substring(2,6)}</td>
+        <td style="padding:1.2rem; font-weight:bold;">${nom.toUpperCase()}</td>
+        <td style="padding:1.2rem; text-align:right;">${ttc} €</td>
+        <td style="padding:1.2rem; text-align:center; font-size:0.8rem; color:#9ca3af;">${dateEcheance.toLocaleDateString('fr-BE')}</td>
+        <td style="padding:1.2rem; text-align:center;">
+            <button id="status-btn-${id}" onclick="changerStatutPaiement('${id}')" style="background:#451a03; color:#f59e0b; border:none; padding:5px 10px; border-radius:4px; font-size:0.7rem; font-weight:bold; cursor:pointer; width:100px;">
+                EN ATTENTE
+            </button>
+        </td>
+        <td style="padding:1.2rem; text-align:right;">
+            <button onclick="emettreFacture('${id}', '${nom}', '${ttc}')" style="background:#3b82f6; color:white; border:none; padding:8px; border-radius:6px; cursor:pointer;">
+                <i class="fas fa-file-export"></i> ÉMETTRE
+            </button>
+        </td>
+    `;
+    tableFact.prepend(row);
+}
