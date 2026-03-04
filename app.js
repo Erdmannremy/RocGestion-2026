@@ -50,18 +50,26 @@ function afficherSection(nom) {
 function ouvrirModale(id = null) {
     clientEnCoursDeModif = id; 
     const titre = document.querySelector('#modal-client h3');
+    const inputTVA = document.getElementById('new-client-tva');
     
+    // On récupère le taux par défaut des paramètres au cas où c'est un nouveau dossier
+    const tvaDefaut = document.getElementById('param-tva').value || 21;
+
     if (id) {
         titre.innerText = "MODIFIER LE DOSSIER";
         const ligneAnnu = document.getElementById("annu-" + id);
         document.getElementById('new-client-name').value = ligneAnnu.cells[0].innerText;
         document.getElementById('new-client-sector').value = ligneAnnu.cells[1].innerText;
         document.getElementById('new-client-amount').value = parseFloat(ligneAnnu.cells[2].innerText);
+        
+        // On récupère le taux TVA qui était stocké dans un attribut "data" (voir étape suivante)
+        inputTVA.value = ligneAnnu.getAttribute('data-tva') || tvaDefaut;
     } else {
         titre.innerText = "NOUVEAU DOSSIER";
         document.getElementById('new-client-name').value = "";
         document.getElementById('new-client-sector').value = "";
         document.getElementById('new-client-amount').value = "";
+        inputTVA.value = tvaDefaut; // On remet le taux par défaut
     }
     document.getElementById('modal-client').style.display = 'flex';
 }
@@ -101,37 +109,53 @@ function validerAjoutClient() {
     const nom = document.getElementById('new-client-name').value;
     const secteur = document.getElementById('new-client-sector').value;
     const montantHT = parseFloat(document.getElementById('new-client-amount').value) || 0;
+    const tauxTVA = parseFloat(document.getElementById('new-client-tva').value) || 0;
 
     if (nom.trim() === "") return;
 
+    const calculTVA = montantHT * (tauxTVA / 100);
+    const ttc = (montantHT + calculTVA).toFixed(2);
     const ht = montantHT.toFixed(2);
-    const ttc = (montantHT * 1.21).toFixed(2); // Pour l'affichage Dashboard
     const date = new Date().toLocaleDateString('fr-FR');
 
+    const contenuHTML_Annu = (id) => `
+        <td style="padding:1.2rem;font-weight:bold;color:#3b82f6;">${nom.toUpperCase()}</td>
+        <td style="padding:1.2rem;"><span style="background:#1f2937;padding:4px 10px;border-radius:4px;font-size:0.75rem;color:#9ca3af;">${secteur}</span></td>
+        <td style="padding:1.2rem;text-align:right;">
+            <span style="font-size:0.7rem; color:#4b5563; margin-right:5px;">(${tauxTVA}%)</span>
+            <span style="margin-right:15px;">${ht} € HT</span>
+            <button onclick="ouvrirModale('${id}')" style="background:none;border:none;color:#3b82f6;cursor:pointer;margin-right:10px;"><i class="fas fa-edit"></i></button>
+            <button onclick="supprimerClient('${id}')" style="background:none;border:none;color:#ef4444;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
+        </td>`;
+
+    const contenuHTML_Dash = `
+        <td style="padding:1rem;"><i class="fas fa-bolt" style="color:#fbbf24;margin-right:10px;"></i> ${nom}</td>
+        <td style="padding:1rem;color:#9ca3af;">${date}</td>
+        <td style="padding:1rem;text-align:right;font-weight:bold;color:#10b981;">${ttc} €</td>`;
+
     if (clientEnCoursDeModif) {
-        // --- MISE À JOUR ---
         const id = clientEnCoursDeModif;
-        const rDash = document.getElementById("dash-" + id);
         const rAnnu = document.getElementById("annu-" + id);
-        
-        if(rDash) rDash.innerHTML = `<td style="padding:1rem;"><i class="fas fa-bolt" style="color:#fbbf24;margin-right:10px;"></i> ${nom}</td><td style="padding:1rem;color:#9ca3af;">${date}</td><td style="padding:1rem;text-align:right;font-weight:bold;color:#10b981;">${ttc} €</td>`;
-        if(rAnnu) rAnnu.innerHTML = `<td style="padding:1.2rem;font-weight:bold;color:#3b82f6;">${nom.toUpperCase()}</td><td style="padding:1.2rem;"><span style="background:#1f2937;padding:4px 10px;border-radius:4px;font-size:0.75rem;color:#9ca3af;">${secteur}</span></td><td style="padding:1.2rem;text-align:right;"><span style="margin-right:15px;">${ht} € HT</span><button onclick="ouvrirModale('${id}')" style="background:none;border:none;color:#3b82f6;cursor:pointer;margin-right:10px;"><i class="fas fa-edit"></i></button><button onclick="supprimerClient('${id}')" style="background:none;border:none;color:#ef4444;cursor:pointer;"><i class="fas fa-trash-alt"></i></button></td>`;
+        const rDash = document.getElementById("dash-" + id);
+        if(rAnnu) {
+            rAnnu.innerHTML = contenuHTML_Annu(id);
+            rAnnu.setAttribute('data-tva', tauxTVA); // On stocke la TVA pour la future modif
+        }
+        if(rDash) rDash.innerHTML = contenuHTML_Dash;
     } else {
-        // --- CRÉATION ---
         const id = "ID" + Date.now();
-        
         const rowAnnu = document.createElement('tr');
         rowAnnu.id = "annu-" + id;
-        rowAnnu.innerHTML = `<td style="padding:1.2rem;font-weight:bold;color:#3b82f6;">${nom.toUpperCase()}</td><td style="padding:1.2rem;"><span style="background:#1f2937;padding:4px 10px;border-radius:4px;font-size:0.75rem;color:#9ca3af;">${secteur}</span></td><td style="padding:1.2rem;text-align:right;"><span style="margin-right:15px;">${ht} € HT</span><button onclick="ouvrirModale('${id}')" style="background:none;border:none;color:#3b82f6;cursor:pointer;margin-right:10px;"><i class="fas fa-edit"></i></button><button onclick="supprimerClient('${id}')" style="background:none;border:none;color:#ef4444;cursor:pointer;"><i class="fas fa-trash-alt"></i></button></td>`;
+        rowAnnu.setAttribute('data-tva', tauxTVA); // Stockage important
+        rowAnnu.innerHTML = contenuHTML_Annu(id);
         document.getElementById('annuaire-table-body').prepend(rowAnnu);
 
         const rowDash = document.createElement('tr');
         rowDash.id = "dash-" + id;
-        rowDash.innerHTML = `<td style="padding:1rem;"><i class="fas fa-bolt" style="color:#fbbf24;margin-right:10px;"></i> ${nom}</td><td style="padding:1rem;color:#9ca3af;">${date}</td><td style="padding:1rem;text-align:right;font-weight:bold;color:#10b981;">${ttc} €</td>`;
+        rowDash.innerHTML = contenuHTML_Dash;
         document.getElementById('client-table-body').prepend(rowDash);
     }
     
-    // Refresh général
     mettreAJourChiffreAffaires();
     document.getElementById('total-partenaires').innerText = document.getElementById('annuaire-table-body').rows.length;
     fermerModale();
@@ -175,23 +199,56 @@ function mettreAJourChiffreAffaires() {
     document.querySelector('#total-charges-display + p').innerText = `Cotisations + Impôts (${(tauxTaxeParam*100).toFixed(0)}%)`;
 }
 
-// --- POINT 3 : EXPORT & RÉINITIALISATION ---
+// --- POINT 3 : EXPORT CSV AMÉLIORÉ (AVEC DÉTAILS TVA) ---
 function exportCSV() {
-    let csv = "Client;Secteur;Montant HT\n";
+    // Récupération des taux actuels définis dans tes paramètres
+    const tauxTVA = parseFloat(document.getElementById('param-tva').value) || 21;
+    const ratioTVA = tauxTVA / 100;
+
+    // En-têtes du CSV (avec séparateur point-virgule pour Excel)
+    let csv = "Client;Secteur;Montant HT;% TVA;Montant TVA;Montant TVAC\n";
+    
     const rows = document.querySelectorAll("#annuaire-table-body tr");
     
+    let totalHT = 0;
+    let totalTVA = 0;
+    let totalTVAC = 0;
+
     rows.forEach(row => {
         const nom = row.cells[0].innerText;
         const secteur = row.cells[1].innerText;
-        const montant = row.cells[2].innerText;
-        csv += `${nom};${secteur};${montant}\n`;
+        // On récupère le montant HT et on nettoie le texte pour n'avoir que le nombre
+        const montantHT = parseFloat(row.cells[2].innerText) || 0;
+        
+        // Calculs pour la ligne
+        const montantTVA = montantHT * ratioTVA;
+        const montantTVAC = montantHT + montantTVA;
+
+        // Cumul pour le total final
+        totalHT += montantHT;
+        totalTVA += montantTVA;
+        totalTVAC += montantTVAC;
+
+        // Ajout de la ligne au CSV (formatage avec virgule pour les décimales si besoin)
+        csv += `${nom};${secteur};${montantHT.toFixed(2)};${tauxTVA}%;${montantTVA.toFixed(2)};${montantTVAC.toFixed(2)}\n`;
     });
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    // Ajout d'une ligne vide pour la lisibilité
+    csv += "\n";
+    
+    // Ajout de la ligne des TOTAUX
+    csv += `TOTAL GLOBAL;;${totalHT.toFixed(2)};;${totalTVA.toFixed(2)};${totalTVAC.toFixed(2)}\n`;
+
+    // Création et téléchargement du fichier
+    const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' }); // \ufeff pour forcer l'UTF-8 sur Excel
     const link = document.createElement("a");
+    const date = new Date().toLocaleDateString('fr-FR').replace(/\//g, '-');
+    
     link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", "RocGestion_Export.csv");
+    link.setAttribute("download", `RocGestion_Export_${date}.csv`);
     link.click();
+    
+    console.log("Export CSV généré avec succès.");
 }
 
 function effacerTout() {
