@@ -121,11 +121,51 @@
             </div>
 
             <div id="section-parametres" style="display: none;">
-                <h2 style="font-size: 2rem; margin-bottom: 1rem;">Paramètres Système</h2>
-                <div style="background: #111827; padding: 2rem; border-radius: 12px; border: 1px solid #1f2937;">
-                    <p style="color: #9ca3af;">Identifiant Station : <strong>JURBISE-ADM-01</strong></p>
-                    <p style="color: #9ca3af;">Statut : <span style="color: #10b981;">Sécurisé</span></p>
+    <h2 style="font-size: 2rem; margin-bottom: 2rem;">Configuration <span style="color: #3b82f6;">Système</span></h2>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        
+        <div style="background: #111827; padding: 2rem; border-radius: 12px; border: 1px solid #1f2937;">
+            <h4 style="margin-top: 0; color: #3b82f6;"><i class="fas fa-percentage"></i> RÉGLAGES FISCAUX & IDENTITÉ</h4>
+            <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
+                <label style="font-size: 0.8rem; color: #9ca3af;">Nom de l'entreprise</label>
+                <input type="text" id="param-entreprise" value="ROC GESTION" style="padding: 10px; border-radius: 6px; background: #030712; border: 1px solid #374151; color: white;">
+                
+                <label style="font-size: 0.8rem; color: #9ca3af;">Taux TVA (%)</label>
+                <input type="number" id="param-tva" value="21" style="padding: 10px; border-radius: 6px; background: #030712; border: 1px solid #374151; color: white;">
+                
+                <label style="font-size: 0.8rem; color: #9ca3af;">Provision Impôts/Cotisations (%)</label>
+                <input type="number" id="param-taxe" value="45" style="padding: 10px; border-radius: 6px; background: #030712; border: 1px solid #374151; color: white;">
+                
+                <button onclick="sauvegarderParametres()" style="margin-top: 10px; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                    APPLIQUER LES RÉGLAGES
+                </button>
+            </div>
+        </div>
+
+        <div style="background: #111827; padding: 2rem; border-radius: 12px; border: 1px solid #1f2937;">
+            <h4 style="margin-top: 0; color: #10b981;"><i class="fas fa-database"></i> GESTION DES DONNÉES</h4>
+            <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
+                <p style="font-size: 0.8rem; color: #9ca3af;">Sauvegardez vos données localement ou exportez-les pour votre comptable.</p>
+                
+                <button onclick="exportCSV()" style="padding: 12px; background: #1f2937; color: white; border: 1px solid #3b82f6; border-radius: 6px; cursor: pointer; text-align: left;">
+                    <i class="fas fa-file-export"></i> Exporter en CSV (Excel)
+                </button>
+                
+                <button onclick="effacerTout()" style="padding: 12px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; border-radius: 6px; cursor: pointer; text-align: left; margin-top: 10px;">
+                    <i class="fas fa-trash"></i> Réinitialiser l'année fiscale
+                </button>
+
+                <h4 style="margin-top: 1.5rem; color: #fbbf24;"><i class="fas fa-paint-brush"></i> APPARENCE</h4>
+                <div style="display: flex; gap: 10px;">
+                    <div onclick="changerCouleur('#3b82f6')" style="width: 30px; height: 30px; background: #3b82f6; border-radius: 50%; cursor: pointer; border: 2px solid white;"></div>
+                    <div onclick="changerCouleur('#10b981')" style="width: 30px; height: 30px; background: #10b981; border-radius: 50%; cursor: pointer;"></div>
+                    <div onclick="changerCouleur('#f59e0b')" style="width: 30px; height: 30px; background: #f59e0b; border-radius: 50%; cursor: pointer;"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
             </div>
 
         </main>

@@ -136,3 +136,76 @@ function validerAjoutClient() {
     document.getElementById('total-partenaires').innerText = document.getElementById('annuaire-table-body').rows.length;
     fermerModale();
 }
+// --- FONCTION DU POINT 1 & 2 : SAUVEGARDE RÉGLAGES ---
+function sauvegarderParametres() {
+    const nouveauNom = document.getElementById('param-entreprise').value;
+    // Mise à jour du nom dans la barre latérale
+    document.querySelector('h1').innerHTML = `<i class="fas fa-gem" style="color: #3b82f6; margin-right: 12px;"></i> ${nouveauNom.toUpperCase()}`;
+    
+    // On relance le calcul du CA avec les nouveaux taux (le calcul utilisera les valeurs des inputs)
+    mettreAJourChiffreAffaires();
+    alert("Paramètres mis à jour avec succès !");
+}
+
+// --- MODIFICATION DE LA FONCTION DE CALCUL POUR UTILISER LES PARAMÈTRES ---
+// Remplace ton ancienne fonction mettreAJourChiffreAffaires par celle-ci :
+function mettreAJourChiffreAffaires() {
+    const tableAnnu = document.getElementById('annuaire-table-body');
+    let totalHT = 0;
+
+    // Récupération dynamique du taux de taxe depuis les paramètres
+    const tauxTaxeParam = parseFloat(document.getElementById('param-taxe').value) / 100 || 0.45;
+
+    for (let i = 0; i < tableAnnu.rows.length; i++) {
+        const montantTexte = tableAnnu.rows[i].cells[2].innerText;
+        const montantNum = parseFloat(montantTexte) || 0;
+        totalHT += montantNum;
+    }
+
+    const montantCharges = totalHT * tauxTaxeParam;
+    const montantNet = totalHT - montantCharges;
+
+    const format = (num) => num.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+
+    document.getElementById('total-ca-display').innerText = format(totalHT);
+    document.getElementById('total-charges-display').innerText = "-" + format(montantCharges);
+    document.getElementById('total-net-display').innerText = format(montantNet);
+    
+    // Mise à jour du texte de légende sous la carte charges
+    document.querySelector('#total-charges-display + p').innerText = `Cotisations + Impôts (${(tauxTaxeParam*100).toFixed(0)}%)`;
+}
+
+// --- POINT 3 : EXPORT & RÉINITIALISATION ---
+function exportCSV() {
+    let csv = "Client;Secteur;Montant HT\n";
+    const rows = document.querySelectorAll("#annuaire-table-body tr");
+    
+    rows.forEach(row => {
+        const nom = row.cells[0].innerText;
+        const secteur = row.cells[1].innerText;
+        const montant = row.cells[2].innerText;
+        csv += `${nom};${secteur};${montant}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", "RocGestion_Export.csv");
+    link.click();
+}
+
+function effacerTout() {
+    if(confirm("Rémy, attention : voulez-vous vraiment effacer TOUS les clients pour la nouvelle année ?")) {
+        document.getElementById('annuaire-table-body').innerHTML = "";
+        document.getElementById('client-table-body').innerHTML = "";
+        mettreAJourChiffreAffaires();
+        document.getElementById('total-partenaires').innerText = "0";
+    }
+}
+
+// --- POINT 4 : PERSONNALISATION COULEUR ---
+function changerCouleur(code) {
+    const elements = document.querySelectorAll('.fa-gem, .fa-chart-line, #total-ca-display');
+    elements.forEach(el => el.style.color = code);
+    document.querySelector('button[onclick="validerAjoutClient()"]').style.background = code;
+}
