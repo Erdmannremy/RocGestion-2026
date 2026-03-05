@@ -203,3 +203,21 @@ function confirmerSuppression() {
         fermerModaleConfirm();
     }
 }
+let historiqueFactures = JSON.parse(localStorage.getItem('roc_historique')) || [];
+
+function genererNouvelleFacture(client) {
+    const nouvelleFacture = {
+        id: "INV-" + Date.now(), // Identifiant unique basé sur le temps
+        date: new Date().toLocaleDateString('fr-BE'),
+        nomClient: client.nom,
+        montantHT: client.montantHT,
+        tva: client.tva,
+        totalTVAC: (client.montantHT * (1 + client.tva / 100)).toFixed(2)
+    };
+
+    historiqueFactures.push(nouvelleFacture);
+    localStorage.setItem('roc_historique', JSON.stringify(historiqueFactures));
+    
+    afficherHistorique();
+    console.log("📄 Nouvelle facture archivée. L'ancienne est conservée.");
+}
