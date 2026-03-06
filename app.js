@@ -203,21 +203,58 @@ function confirmerSuppression() {
         fermerModaleConfirm();
     }
 }
-let historiqueFactures = JSON.parse(localStorage.getItem('roc_historique')) || [];
 
-function genererNouvelleFacture(client) {
-    const nouvelleFacture = {
-        id: "INV-" + Date.now(), // Identifiant unique basé sur le temps
-        date: new Date().toLocaleDateString('fr-BE'),
-        nomClient: client.nom,
-        montantHT: client.montantHT,
-        tva: client.tva,
-        totalTVAC: (client.montantHT * (1 + client.tva / 100)).toFixed(2)
-    };
+function exportCSV() {
+    // 1. Identification de la source de données
+    // On vérifie si 'factures' existe, sinon on cherche 'data'
+    let dataToExport = [];
+    if (typeof factures !== 'undefined') {
+        dataToExport = factures;
+    } else if (typeof data !== 'undefined') {
+        dataToExport = data;
+    }
 
-    historiqueFactures.push(nouvelleFacture);
-    localStorage.setItem('roc_historique', JSON.stringify(historiqueFactures));
+    // 2. Vérification de sécurité
+    if (!dataToExport || dataToExport.length === 0) {
+        alert("⚠️ Erreur : Aucune donnée trouvée dans le système pour l'export.");
+        return;
+    }
+
+    const csvRows = [];
     
-    afficherHistorique();
-    console.log("📄 Nouvelle facture archivée. L'ancienne est conservée.");
+    // 3. Headers (Format compatible Excel Belgique / France)
+    const headers = ["Date", "Facture_ID", "Client_TVA", "Montant_HT", "TVA"];
+    csvRows.push(headers.join(';'));
+
+    // 4. Boucle de traitement des lignes
+    dataToExport.forEach(row => {
+        const values = [
+            row.date || 'N/A',
+            row.id || 'Sans_ID',
+            row.client_tva || 'Particulier',
+            // Conversion des points en virgules pour Excel (format monétaire)
+            (row.totalHT || 0).toString().replace('.', ','),
+            (row.totalTVA || 0).toString().replace('.', ',')
+        ];
+        csvRows.push(values.join(';'));
+    });
+
+    // 5. Génération du fichier avec encodage UTF-8 (pour les accents)
+    const blob = new Blob(["\ufeff" + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    
+    // 6. Injection du lien et clic automatique
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = `Export_RocGestion_${new Date().toISOString().slice(0,10)}.csv`;
+    
+    document.body.appendChild(a);
+    a.click();
+    
+    // Nettoyage
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    
+    console.log("✅ Export réussi pour le fiscaliste.");
 }
