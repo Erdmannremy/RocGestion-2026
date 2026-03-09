@@ -204,57 +204,63 @@ function confirmerSuppression() {
     }
 }
 
-function exportCSV() {
-    // 1. Identification de la source de données
-    // On vérifie si 'factures' existe, sinon on cherche 'data'
-    let dataToExport = [];
-    if (typeof factures !== 'undefined') {
-        dataToExport = factures;
-    } else if (typeof data !== 'undefined') {
-        dataToExport = data;
-    }
-
-    // 2. Vérification de sécurité
-    if (!dataToExport || dataToExport.length === 0) {
-        alert("⚠️ Erreur : Aucune donnée trouvée dans le système pour l'export.");
+async function exportCSV() {
+    const lignes = document.querySelectorAll('#annuaire-table-body tr');
+    
+    if (lignes.length === 0) {
+        alert("⚠️ Aucun dossier à exporter.");
         return;
     }
 
     const csvRows = [];
-    
-    // 3. Headers (Format compatible Excel Belgique / France)
-    const headers = ["Date", "Facture_ID", "Client_TVA", "Montant_HT", "TVA"];
-    csvRows.push(headers.join(';'));
+    // En-têtes pour votre comptable
+    csvRows.push(["Client", "Secteur", "Montant_HT", "Taux_TVA_Perc", "Total_TVAC"].join(';'));
 
-    // 4. Boucle de traitement des lignes
-    dataToExport.forEach(row => {
-        const values = [
-            row.date || 'N/A',
-            row.id || 'Sans_ID',
-            row.client_tva || 'Particulier',
-            // Conversion des points en virgules pour Excel (format monétaire)
-            (row.totalHT || 0).toString().replace('.', ','),
-            (row.totalTVA || 0).toString().replace('.', ',')
-        ];
-        csvRows.push(values.join(';'));
+    lignes.forEach(tr => {
+        const cellules = tr.querySelectorAll('td');
+        
+        if (cellules.length >= 5) {
+            // 1. Nom (Cellule 0)
+            const nom = cellules[0].innerText.trim();
+
+            // 2. Secteur (Cellule 1 - on cherche le texte dans le span)
+            const secteur = cellules[1].querySelector('span') ? cellules[1].querySelector('span').innerText.trim() : cellules[1].innerText.trim();
+
+            // 3. Montant HT (Cellule 2 - on cherche la classe spécifique)
+            const spanHT = cellules[2].querySelector('.classe-montant-ht');
+            const ht = spanHT ? spanHT.innerText.trim().replace('.', ',') : "0,00";
+
+            // 4. Taux TVA (On le récupère de l'attribut data-tva que vous fixez à l'enregistrement)
+            const tvaTaux = tr.getAttribute('data-tva') || "21";
+
+            // 5. Total TVAC (Cellule 4)
+            const ttc = cellules[4].innerText.replace('€', '').trim().replace('.', ',');
+
+            // Assemblage de la ligne
+            csvRows.push([`"${nom}"`, `"${secteur}"`, ht, tvaTaux.replace('.', ','), ttc].join(';'));
+        }
     });
 
-    // 5. Génération du fichier avec encodage UTF-8 (pour les accents)
+    // --- Génération du fichier ---
     const blob = new Blob(["\ufeff" + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-    const url = window.URL.createObjectURL(blob);
-    
-    // 6. Injection du lien et clic automatique
-    const a = document.createElement('a');
-    a.style.display = 'none';
-    a.href = url;
-    a.download = `Export_RocGestion_${new Date().toISOString().slice(0,10)}.csv`;
-    
-    document.body.appendChild(a);
-    a.click();
-    
-    // Nettoyage
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-    
-    console.log("✅ Export réussi pour le fiscaliste.");
+    const nomFichier = `RocGestion_Export_${new Date().toISOString().slice(0,10)}.csv`;
+
+    if ('showSaveFilePicker' in window) {
+        try {
+            const handle = await window.showSaveFilePicker({
+                suggestedName: nomFichier,
+                types: [{ description: 'Fichier CSV', accept: {'text/csv': ['.csv']} }]
+            });
+            const writable = await handle.createWritable();
+            await writable.write(blob);
+            await writable.close();
+        } catch (err) { console.log("Export annulé"); }
+    } else {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nomFichier;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
 }
